@@ -48,3 +48,4 @@ const renderInitialCards = (cards) => {
 document.addEventListener('DOMContentLoaded', () => {
   renderInitialCards(initialCards);
 });
+
