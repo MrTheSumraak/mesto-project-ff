@@ -13,7 +13,14 @@ import initialCards from './cards.js';
 const cardTemplate = document.querySelector('#card-template').content;
 const placesList = document.querySelector('.places__list');
 
-const cardCreate = (cards) => {
+const deleteCard = (deleteButton) => {
+  const cardElement = deleteButton.closest('.card');
+  if (cardElement) {
+    cardElement.remove();
+  }
+};
+
+const createCard = (cards, deleteHand) => {
   const cardClone = cardTemplate.cloneNode(true);
 
   const cardImage = cardClone.querySelector('.card__image');
@@ -21,23 +28,23 @@ const cardCreate = (cards) => {
   const cardDelete = cardClone.querySelector('.card__delete-button');
 
   cardImage.src = cards.link;
+  cardImage.alt = cards.name;
   cardTitle.innerText = cards.name;
 
   cardDelete.addEventListener('click', () => {
-    const cardElement = cardDelete.closest('.card');
-    if (cardElement) {
-      cardElement.remove();
-    }
+    deleteHand(cardDelete);
   });
 
   return cardClone;
 };
 
-const cardLoad = (cards) => {
+const renderInitialCards = (cards) => {
   cards.forEach((card) => {
-    const cardElement = cardCreate(card);
+    const cardElement = createCard(card, deleteCard);
     placesList.appendChild(cardElement);
   });
 };
 
-document.addEventListener('DOMContentLoaded', cardLoad(initialCards));
+document.addEventListener('DOMContentLoaded', () => {
+  renderInitialCards(initialCards);
+});
