@@ -9,6 +9,7 @@
 // @todo: Вывести карточки на страницу
 
 import '../pages/index.css';
+import avatar from '../images/avatar.jpg'
 import initialCards from './card.js';
 import { createCard, deleteCard } from './card.js';
 import { openModal, closeModal } from './modal.js';
