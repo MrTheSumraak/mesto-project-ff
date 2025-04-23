@@ -8,9 +8,12 @@
 
 // @todo: Вывести карточки на страницу
 
-import initialCards from './cards.js';
-import { createCard, deleteCard } from './cards.js';
+import '../pages/index.css';
+import initialCards from './card.js';
+import { createCard, deleteCard } from './card.js';
 import { openModal, closeModal } from './modal.js';
+import { handleImageClick }from './card.js'
+import { handleLikeClick } from './card.js'
 
 const placesList = document.querySelector('.places__list');
 const popupButtonEdit = document.querySelector('[data-id="button-edit"]');
@@ -18,7 +21,7 @@ const popupButtonAdd = document.querySelector('[data-id="button-add-profile"]');
 const popupButtonClose = document.querySelectorAll('[data-id="popup-close"]');
 const popupEdit = document.querySelector('[data-id="popup-edit"]');
 const popupNewCard = document.querySelector('[data-id="popup-new-card"]');
-const popupImage = document.querySelector('[data-id="popup-image"]');
+// const popupImage = document.querySelector('[data-id="popup-image"]');
 const popup = document.querySelectorAll('.popup');
 const nameUser = document.querySelector('.profile__title');
 const descriptionName = document.querySelector('.profile__description');
@@ -28,6 +31,15 @@ const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
 const cardNameInput = document.querySelector('.popup__input_type_card-name');
 const imgUrlInput = document.querySelector('.popup__input_type_url');
+
+export const handleEscClose = (evt) => {
+  if (evt.key === 'Escape') {
+    const activePopup = document.querySelector('.popup_is-opened');
+    if (activePopup) {
+      closeModal(activePopup);
+    }
+  }
+};
 
 popupButtonClose.forEach((button) => {
   button.addEventListener('click', () => {
@@ -45,17 +57,9 @@ popup.forEach((el) => {
   });
 });
 
-document.addEventListener('keydown', (evt) => {
-  if (evt.key === 'Escape') {
-    popup.forEach((popupElement) => {
-      closeModal(popupElement);
-    });
-  }
-});
-
 const renderInitialCards = (cards) => {
   cards.forEach((card) => {
-    const cardElement = createCard(card, deleteCard, openModal, popupImage);
+    const cardElement = createCard(card, deleteCard, handleLikeClick, handleImageClick);
     placesList.appendChild(cardElement);
   });
 };
@@ -67,7 +71,7 @@ const addingCard = () => {
   };
 
   initialCards.unshift(newCard);
-  const newCardElement = createCard(newCard, deleteCard, openModal, popupImage);
+  const newCardElement = createCard(newCard, deleteCard, handleLikeClick, handleImageClick);
   placesList.prepend(newCardElement);
   closeModal(popupNewCard);
 };

@@ -15,7 +15,7 @@
       <header class="header page__section">
         <img
           src="<%= require('./images/logo.svg') %>"
-          alt="Логотип проекта масто"
+          alt="Логотип проекта место"
           class="logo header__logo"
         />
       </header>
@@ -27,10 +27,18 @@
           ></div>
           <div class="profile__info">
             <h1 class="profile__title">Жак-Ив Кусто</h1>
-            <button class="profile__edit-button" type="button" data-id="button-edit"></button>
+            <button
+              class="profile__edit-button"
+              type="button"
+              data-id="button-edit"
+            ></button>
             <p class="profile__description">Исследователь океана</p>
           </div>
-          <button class="profile__add-button" type="button" data-id="button-add-profile"></button>
+          <button
+            class="profile__add-button"
+            type="button"
+            data-id="button-add-profile"
+          ></button>
         </section>
         <section class="places page__section">
           <ul class="places__list"></ul>
@@ -41,7 +49,11 @@
       </footer>
       <div class="popup popup_type_edit" data-id="popup-edit">
         <div class="popup__content">
-          <button type="button" class="popup__close" data-id="popup-close"></button>
+          <button
+            type="button"
+            class="popup__close"
+            data-id="popup-close"
+          ></button>
           <h3 class="popup__title">Редактировать профиль</h3>
           <form class="popup__form" name="edit-profile">
             <input
@@ -66,7 +78,11 @@
       </div>
       <div class="popup popup_type_new-card" data-id="popup-new-card">
         <div class="popup__content">
-          <button type="button" class="popup__close" data-id="popup-close"></button>
+          <button
+            type="button"
+            class="popup__close"
+            data-id="popup-close"
+          ></button>
           <h3 class="popup__title">Новое место</h3>
           <form class="popup__form" name="new-place">
             <input
@@ -83,7 +99,11 @@
               placeholder="Ссылка на картинку"
               required
             />
-            <button type="submit" class="button popup__button" data-id="popup__button-save-newcard">
+            <button
+              type="submit"
+              class="button popup__button"
+              data-id="popup__button-save-newcard"
+            >
               Сохранить
             </button>
           </form>
@@ -91,13 +111,17 @@
       </div>
       <div class="popup popup_type_image" data-id="popup-image">
         <div class="popup__content popup__content_content_image">
-          <button type="button" class="popup__close" data-id="popup-close"></button>
+          <button
+            type="button"
+            class="popup__close"
+            data-id="popup-close"
+          ></button>
           <img src="" alt="" class="popup__image" />
           <p class="popup__caption"></p>
         </div>
       </div>
     </div>
-    <script src="./scripts/cards.js" type="module" defer></script>
+    <script src="./scripts/card.js" type="module" defer></script>
     <script src="./scripts/modal.js" type="module" defer></script>
     <script src="./scripts/index.js" type="module" defer></script>
 
@@ -113,6 +137,3 @@
     </template>
   </body>
 </html>
-
-<!-- src="<%= require('./images/logo.svg') %>" -->
-

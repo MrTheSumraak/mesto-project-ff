@@ -25,6 +25,8 @@ const initialCards = [
     }
 ];
 
+import { openModal } from './modal.js';
+
 export const deleteCard = (deleteButton) => {
   const cardElement = deleteButton.closest('.card');
   if (cardElement) {
@@ -32,7 +34,7 @@ export const deleteCard = (deleteButton) => {
   }
 };
 
-export const createCard = (cards, deleteHand, openPopup, popupImage) => {
+export const createCard = (cards, handleDeleteClick, handleLikeClick, handleImageClick) => {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardClone = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImage = cardClone.querySelector('.card__image');
@@ -45,25 +47,55 @@ export const createCard = (cards, deleteHand, openPopup, popupImage) => {
   cardTitle.innerText = cards.name;
 
   cardDelete.addEventListener('click', () => {
-    deleteHand(cardDelete);
+    handleDeleteClick(cardDelete);
+    
   });
 
   cardImage.addEventListener('click', () => {
-    const popupImageElement = popupImage.querySelector('.popup__image');
-    const popupCaptionElement = popupImage.querySelector('.popup__caption');
-
-    popupImageElement.src = cards.link;
-    popupImageElement.alt = cards.name;
-    popupCaptionElement.textContent = cards.name;
-
-    openPopup(popupImage);
+    handleImageClick(cards);
   });
 
   likeButton.addEventListener('click', () => {
-    likeButton.classList.toggle('card__like-button_is-active');
+    handleLikeClick(likeButton);
   });
 
   return cardClone;
 };
 
+export const handleDeleteClick = (deleteButton) => {
+  const cardElement = deleteButton.closest('.card');
+  if (cardElement) {
+    cardElement.remove();
+  }
+};
+
+export const handleLikeClick = (likeButton) => {
+  likeButton.classList.toggle('card__like-button_is-active');
+};
+
+export const handleImageClick = (cards) => {
+  const popupImage = document.querySelector('[data-id="popup-image"]');
+  const popupImageElement = popupImage.querySelector('.popup__image');
+  const popupCaptionElement = popupImage.querySelector('.popup__caption');
+
+  popupImageElement.src = cards.link;
+  popupImageElement.alt = cards.name;
+  popupCaptionElement.textContent = cards.name;
+
+  openModal(popupImage);
+};
+
 export default initialCards;
+
+// const openImagePopup= () => {
+//   cardImage.addEventListener('click', () => {
+//     const popupImageElement = popupImage.querySelector('.popup__image');
+//     const popupCaptionElement = popupImage.querySelector('.popup__caption');
+
+//     popupImageElement.src = cards.link;
+//     popupImageElement.alt = cards.name;
+//     popupCaptionElement.textContent = cards.name;
+
+//     openPopup(popupImage);
+//   });
+// } 
