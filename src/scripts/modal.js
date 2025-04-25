@@ -1,4 +1,11 @@
-import { handleEscClose } from './index.js';
+export const handleEscClose = (evt) => {
+  if (evt.key === 'Escape') {
+    const activePopup = document.querySelector('.popup_is-opened');
+    if (activePopup) {
+      closeModal(activePopup);
+    }
+  }
+};
 
 export const openModal = (popup) => {
   popup.classList.add('popup_is-opened');
@@ -7,6 +14,5 @@ export const openModal = (popup) => {
 
 export const closeModal = (popup) => {
   popup.classList.remove('popup_is-opened');
-  popup.classList.add('popup_is-animated');
   document.removeEventListener('keydown', handleEscClose);
 };
