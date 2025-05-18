@@ -8,8 +8,6 @@
 
 // @todo: Вывести карточки на страницу
 
-import avatar from '../images/avatar.jpg'
-
 import '../pages/index.css';
 
 import { createCard, deleteCard, handleLikeClick } from './card.js';
@@ -124,16 +122,19 @@ const addingCard = async () => {
 
 
 popupButtonEdit.addEventListener('click', () => {
+  clearValidation(formElementEdit, validationConfig)
   nameInput.value = nameUser.textContent;
   jobInput.value = descriptionName.textContent;
   openModal(popupEdit);
 });
 
 popupButtonAdd.addEventListener('click', () => {
+  clearValidation(formElementNewPlace, validationConfig)
   openModal(popupNewCard);
 });
 
 profilImage.addEventListener('click', () => {
+  clearValidation(formNewAvatar, validationConfig)
   openModal(popupeNewAvatar)
 })
 
