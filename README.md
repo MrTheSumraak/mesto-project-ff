@@ -1,2 +1,2 @@
 # Проектная работа Mesto
-https://github.com/MrTheSumraak/mesto-project-ff.git
+https://mrthesumraak.github.io/mesto-project-ff/
