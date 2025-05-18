@@ -8,54 +8,53 @@
 
 // @todo: Вывести карточки на страницу
 
-// import avatar from '../images/avatar.jpg'
+import avatar from '../images/avatar.jpg'
 
 import '../pages/index.css';
+
 import { createCard, deleteCard, handleLikeClick } from './card.js';
 import { openModal, closeModal } from './modal.js';
+import { config, getCards, changeUserInfo, postFetch, fetchAvatar } from './api.js';
+import { enableValidation, clearValidation } from "./validation.js";
 
-const initialCards = [
-  {
-    name: 'Архыз',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg',
-  },
-  {
-    name: 'Челябинская область',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg',
-  },
-  {
-    name: 'Иваново',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg',
-  },
-  {
-    name: 'Камчатка',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg',
-  },
-  {
-    name: 'Холмогорский район',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg',
-  },
-  {
-    name: 'Байкал',
-    link: 'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg',
-  },
-];
+export const placesList = document.querySelector('.places__list');
 
-const placesList = document.querySelector('.places__list');
+const popupList = document.querySelectorAll('.popup');
+export const popupEdit = document.querySelector('[data-id="popup-edit"]');
+export const popupNewCard = document.querySelector('[data-id="popup-new-card"]');
+export const popupeDeleteCard = document.querySelector('[data-id="popupe-delete-card"]');
+export const popupeNewAvatar = document.querySelector('[data-id="popupe-new-avatar"]')
+
+export const formElementEdit = document.forms['edit-profile'];
+const formElementNewPlace = document.querySelector('[name="new-place"]');
+export const formNewAvatar = document.forms['new-avatar']
+
 const popupButtonEdit = document.querySelector('[data-id="button-edit"]');
+const saveButtonNewCard = document.querySelector('[data-id="popup__button-save-newcard"]')
 const popupButtonAdd = document.querySelector('[data-id="button-add-profile"]');
 const popupButtonClose = document.querySelectorAll('[data-id="popup-close"]');
-const popupList = document.querySelectorAll('.popup');
-const popupEdit = document.querySelector('[data-id="popup-edit"]');
-const popupNewCard = document.querySelector('[data-id="popup-new-card"]');
-const nameUser = document.querySelector('.profile__title');
-const descriptionName = document.querySelector('.profile__description');
-const formElementEdit = document.forms['edit-profile'];
-const formElementNewPlace = document.querySelector('[name="new-place"]');
-const nameInput = document.querySelector('.popup__input_type_name');
-const jobInput = document.querySelector('.popup__input_type_description');
-const cardNameInput = document.querySelector('.popup__input_type_card-name');
-const imgUrlInput = document.querySelector('.popup__input_type_url');
+const popupesaveButtonEditprofile = document.querySelector('[data-id="save-button"]');
+export const popupButtonDelete = document.querySelector('[data-id="button_delete-card"]');
+const popupNewAvatarButton = formNewAvatar.querySelector('[data-id="button_new-avatar"]')
+
+export const nameInput = document.querySelector('.popup__input_type_name');
+export const jobInput = document.querySelector('.popup__input_type_description');
+export const cardNameInput = document.querySelector('.popup__input_type_card-name');
+export const imgUrlInput = document.querySelector('.popup__input_type_url');
+export const newAvatarInput = formNewAvatar.querySelector('.popup__input_type_url__new-avatar')
+
+export const nameUser = document.querySelector('.profile__title');
+export const descriptionName = document.querySelector('.profile__description');
+export const profilImage = document.querySelector('[data-id="profile-image-container"]')
+
+export const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
 
 export const handleImageClick = (cards) => {
   const popupImage = document.querySelector('[data-id="popup-image"]');
@@ -72,8 +71,8 @@ popupList.forEach((popup) => {
 });
 
 popupButtonClose.forEach((button) => {
-  button.addEventListener('click', (ev) => {
-    const parentPopup = ev.target.closest('.popup');
+  button.addEventListener('click', (event) => {
+    const parentPopup = event.target.closest('.popup');
     if (parentPopup) {
       closeModal(parentPopup);
     }
@@ -91,31 +90,38 @@ popupList.forEach((popup) => {
   });
 });
 
-const renderInitialCards = (cards) => {
-  cards.forEach((card) => {
-    const cardElement = createCard(
+export const renderInitialCards = async (cards) => {
+  for (const card of cards) {
+    const cardElement = await createCard(
       card,
       deleteCard,
       handleLikeClick,
       handleImageClick,
     );
     placesList.append(cardElement);
-  });
+  }
 };
 
-const addingCard = () => {
-  const newCard = { name: cardNameInput.value, link: imgUrlInput.value };
-  const newCardElement = createCard(
+const addingCard = async () => {
+  const newCard = await postFetch();
+  if (!newCard) {
+    console.error('Карточка не получена с сервера!');
+    return;
+  }
+
+  const newCardElement = await createCard(
     newCard,
     deleteCard,
     handleLikeClick,
     handleImageClick,
   );
+
   placesList.prepend(newCardElement);
   closeModal(popupNewCard);
   cardNameInput.value = '';
   imgUrlInput.value = '';
 };
+
 
 popupButtonEdit.addEventListener('click', () => {
   nameInput.value = nameUser.textContent;
@@ -123,22 +129,46 @@ popupButtonEdit.addEventListener('click', () => {
   openModal(popupEdit);
 });
 
-formElementEdit.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  nameUser.textContent = nameInput.value;
-  descriptionName.textContent = jobInput.value;
-  closeModal(popupEdit);
-});
-
 popupButtonAdd.addEventListener('click', () => {
   openModal(popupNewCard);
 });
 
-formElementNewPlace.addEventListener('submit', (evt) => {
+profilImage.addEventListener('click', () => {
+  openModal(popupeNewAvatar)
+})
+
+
+formElementEdit.addEventListener('submit', async (evt) => {
   evt.preventDefault();
-  addingCard();
+  popupesaveButtonEditprofile.textContent = 'Сохранение...'
+  nameUser.textContent = nameInput.value;
+  descriptionName.textContent = jobInput.value;
+  await changeUserInfo(nameUser, descriptionName).then((data) => {
+    console.log('Обновлённые данные:', data)
+    data.name = nameUser.value
+    data.about = descriptionName.value
+  })
+  popupesaveButtonEditprofile.textContent = 'Сохранить'
+  closeModal(popupEdit);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderInitialCards(initialCards);
+formElementNewPlace.addEventListener('submit', async (evt) => {
+  evt.preventDefault();
+  saveButtonNewCard.textContent = 'Добавление...'
+  await addingCard();
+  saveButtonNewCard.textContent = 'Создать'
 });
+
+formNewAvatar.addEventListener('submit', async (evt) => {
+  evt.preventDefault()
+  popupNewAvatarButton.textContent = 'Сохранение...'
+  await fetchAvatar(newAvatarInput.value).then(userData => {
+    profilImage.src = userData.avatar
+  })
+  popupNewAvatarButton.textContent = 'Сохранить'
+  closeModal(popupeNewAvatar)
+})
+
+enableValidation(validationConfig);
+
+// это была очень потная работа... успеваю день в день

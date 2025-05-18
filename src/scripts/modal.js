@@ -7,7 +7,7 @@ export const handleEscClose = (evt) => {
   }
 };
 
-export const openModal = (popup) => {
+export const openModal = (popup, form) => {
   popup.classList.add('popup_is-opened');
   document.addEventListener('keydown', handleEscClose);
 };
