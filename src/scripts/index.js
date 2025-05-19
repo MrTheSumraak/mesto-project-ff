@@ -12,38 +12,74 @@ import '../pages/index.css';
 
 import { createCard, deleteCard, handleLikeClick } from './card.js';
 import { openModal, closeModal } from './modal.js';
-import { config, getCards, changeUserInfo, postFetch, fetchAvatar } from './api.js';
-import { enableValidation, clearValidation } from "./validation.js";
+import {
+  getUser,
+  getCards,
+  changeUserInfo,
+  postFetch,
+  fetchAvatar,
+  deleteCardFetch,
+} from './api.js';
+import { enableValidation, clearValidation } from './validation.js';
 
 export const placesList = document.querySelector('.places__list');
 
 const popupList = document.querySelectorAll('.popup');
 export const popupEdit = document.querySelector('[data-id="popup-edit"]');
-export const popupNewCard = document.querySelector('[data-id="popup-new-card"]');
-export const popupeDeleteCard = document.querySelector('[data-id="popupe-delete-card"]');
-export const popupeNewAvatar = document.querySelector('[data-id="popupe-new-avatar"]')
+export const popupNewCard = document.querySelector(
+  '[data-id="popup-new-card"]',
+);
+export const popupeDeleteCard = document.querySelector(
+  '[data-id="popupe-delete-card"]',
+);
+export const popupeNewAvatar = document.querySelector(
+  '[data-id="popupe-new-avatar"]',
+);
 
 export const formElementEdit = document.forms['edit-profile'];
 const formElementNewPlace = document.querySelector('[name="new-place"]');
-export const formNewAvatar = document.forms['new-avatar']
+export const formNewAvatar = document.forms['new-avatar'];
 
 const popupButtonEdit = document.querySelector('[data-id="button-edit"]');
-const saveButtonNewCard = document.querySelector('[data-id="popup__button-save-newcard"]')
+const saveButtonNewCard = document.querySelector(
+  '[data-id="popup__button-save-newcard"]',
+);
 const popupButtonAdd = document.querySelector('[data-id="button-add-profile"]');
 const popupButtonClose = document.querySelectorAll('[data-id="popup-close"]');
-const popupesaveButtonEditprofile = document.querySelector('[data-id="save-button"]');
-export const popupButtonDelete = document.querySelector('[data-id="button_delete-card"]');
-const popupNewAvatarButton = formNewAvatar.querySelector('[data-id="button_new-avatar"]')
+const popupesaveButtonEditprofile = document.querySelector(
+  '[data-id="save-button"]',
+);
+
+const popupImage = document.querySelector('[data-id="popup-image"]');
+const popupImageElement = popupImage.querySelector('.popup__image');
+const popupCaptionElement = popupImage.querySelector('.popup__caption');
+
+export const popupButtonDelete = document.querySelector(
+  '[data-id="button_delete-card"]',
+);
+const popupNewAvatarButton = formNewAvatar.querySelector(
+  '[data-id="button_new-avatar"]',
+);
 
 export const nameInput = document.querySelector('.popup__input_type_name');
-export const jobInput = document.querySelector('.popup__input_type_description');
-export const cardNameInput = document.querySelector('.popup__input_type_card-name');
+export const jobInput = document.querySelector(
+  '.popup__input_type_description',
+);
+export const cardNameInput = document.querySelector(
+  '.popup__input_type_card-name',
+);
 export const imgUrlInput = document.querySelector('.popup__input_type_url');
-export const newAvatarInput = formNewAvatar.querySelector('.popup__input_type_url__new-avatar')
+export const newAvatarInput = formNewAvatar.querySelector(
+  '.popup__input_type_url__new-avatar',
+);
 
 export const nameUser = document.querySelector('.profile__title');
 export const descriptionName = document.querySelector('.profile__description');
-export const profilImage = document.querySelector('[data-id="profile-image-container"]')
+export const profilImageContainer = document.querySelector(
+  '[data-id="profile-image-container"]',
+);
+export const profileImage = profilImageContainer.querySelector('[data-id="profile-image"]')
+const avatar = document.querySelector('.profile__image');
 
 export const validationConfig = {
   formSelector: '.popup__form',
@@ -51,16 +87,68 @@ export const validationConfig = {
   submitButtonSelector: '.popup__button',
   inactiveButtonClass: 'popup__button_disabled',
   inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
+  errorClass: 'popup__error_visible',
 };
 
-export const handleImageClick = (cards) => {
-  const popupImage = document.querySelector('[data-id="popup-image"]');
-  const popupImageElement = popupImage.querySelector('.popup__image');
-  const popupCaptionElement = popupImage.querySelector('.popup__caption');
-  popupImageElement.src = cards.link;
-  popupImageElement.alt = cards.name;
-  popupCaptionElement.textContent = cards.name;
+export const renderProfil = (data) => {
+  nameUser.textContent = data.name;
+  descriptionName.textContent = data.about;
+  avatar.src = data.avatar;
+};
+
+let profileUserId;
+
+Promise.all([getUser(), getCards()])
+  .then(([userData, cards]) => {
+    profileUserId = userData._id;
+    nameInput.textContent = userData.name;
+    jobInput.textContent = userData.about;
+    console.log(
+      'Ид профиля: ' + profileUserId + 'Имя профиля:' + userData.name,
+    );
+    console.log('Данные пользователя:', userData);
+    console.log('Карточки:', cards);
+    avatar.style.backgroundImage = `url(${userData.avatar})`;
+    cards.forEach((card) => {
+      placesList.append(
+        createCard(
+          card,
+          openDeleteModal,
+          handleLikeClick,
+          handleImageClick,
+          profileUserId,
+        ),
+      );
+    });
+    renderProfil(userData);
+    renderInitialCards(cards, profileUserId);
+  })
+  .catch((err) => console.error('Ошибка:', err));
+
+export const openDeleteModal = (cardClone, cards, deleteCard) => {
+  openModal(popupeDeleteCard);
+
+  const newPopupButtonDelete = document.querySelector(
+    '[data-id="button_delete-card"]',
+  );
+
+  newPopupButtonDelete.addEventListener('click', () => {
+    newPopupButtonDelete.textContent = 'Удаление...';
+    deleteCardFetch(cards._id)
+      .then(() => {
+        console.log(`Карточка ${cards._id} удалена с сервера`);
+        deleteCard(cardClone);
+        closeModal(popupeDeleteCard); // вроде бы реализовал правильно, насколько понял замечание
+        newPopupButtonDelete.textContent = 'Да';
+      })
+      .catch((err) => console.error('Ошибка:', err));
+  });
+};
+
+export const handleImageClick = (card) => {
+  popupImageElement.src = card.link;
+  popupImageElement.alt = card.name;
+  popupCaptionElement.textContent = card.name;
   openModal(popupImage);
 };
 
@@ -88,87 +176,92 @@ popupList.forEach((popup) => {
   });
 });
 
-export const renderInitialCards = async (cards) => {
+export function renderInitialCards(cards, userId) {
   for (const card of cards) {
-    const cardElement = await createCard(
+    const cardElement = createCard(
       card,
-      deleteCard,
+      openDeleteModal,
       handleLikeClick,
       handleImageClick,
+      userId,
     );
     placesList.append(cardElement);
   }
+}
+
+const addingCard = () => {
+  saveButtonNewCard.textContent = 'Добавление...';
+  postFetch()
+    .then((newCard) => {
+      const newCardElement = createCard(
+        newCard,
+        deleteCard,
+        handleLikeClick,
+        handleImageClick,
+        profileUserId,
+      );
+      console.log(saveButtonNewCard);
+
+      placesList.prepend(newCardElement);
+      closeModal(popupNewCard);
+      cardNameInput.value = '';
+      imgUrlInput.value = '';
+      console.log('Новая карточка:', newCard);
+      saveButtonNewCard.textContent = 'Создать';
+    })
+    .catch((err) => console.error('Ошибка:', err));
 };
-
-const addingCard = async () => {
-  const newCard = await postFetch();
-  if (!newCard) {
-    console.error('Карточка не получена с сервера!');
-    return;
-  }
-
-  const newCardElement = await createCard(
-    newCard,
-    deleteCard,
-    handleLikeClick,
-    handleImageClick,
-  );
-
-  placesList.prepend(newCardElement);
-  closeModal(popupNewCard);
-  cardNameInput.value = '';
-  imgUrlInput.value = '';
-};
-
 
 popupButtonEdit.addEventListener('click', () => {
-  clearValidation(formElementEdit, validationConfig)
+  clearValidation(formElementEdit, validationConfig);
   nameInput.value = nameUser.textContent;
   jobInput.value = descriptionName.textContent;
   openModal(popupEdit);
 });
 
 popupButtonAdd.addEventListener('click', () => {
-  clearValidation(formElementNewPlace, validationConfig)
+  clearValidation(formElementNewPlace, validationConfig);
   openModal(popupNewCard);
 });
 
-profilImage.addEventListener('click', () => {
-  clearValidation(formNewAvatar, validationConfig)
-  openModal(popupeNewAvatar)
-})
-
-
-formElementEdit.addEventListener('submit', async (evt) => {
-  evt.preventDefault();
-  popupesaveButtonEditprofile.textContent = 'Сохранение...'
-  nameUser.textContent = nameInput.value;
-  descriptionName.textContent = jobInput.value;
-  await changeUserInfo(nameUser, descriptionName).then((data) => {
-    console.log('Обновлённые данные:', data)
-    data.name = nameUser.value
-    data.about = descriptionName.value
-  })
-  popupesaveButtonEditprofile.textContent = 'Сохранить'
-  closeModal(popupEdit);
+profilImageContainer.addEventListener('click', () => {
+  clearValidation(formNewAvatar, validationConfig);
+  openModal(popupeNewAvatar);
 });
 
-formElementNewPlace.addEventListener('submit', async (evt) => {
+formElementEdit.addEventListener('submit', (evt) => {
   evt.preventDefault();
-  saveButtonNewCard.textContent = 'Добавление...'
-  await addingCard();
-  saveButtonNewCard.textContent = 'Создать'
+  popupesaveButtonEditprofile.textContent = 'Сохранение...';
+
+  changeUserInfo(nameInput, jobInput)
+    .then((data) => {
+      nameUser.textContent = data.name;
+      descriptionName.textContent = data.about;
+      console.log('Обновлённые данные:', data);
+
+      closeModal(popupEdit);
+    })
+    .catch((err) => console.error('Ошибка:', err))
+    .finally(() => {
+      popupesaveButtonEditprofile.textContent = 'Сохранить';
+    });
 });
 
-formNewAvatar.addEventListener('submit', async (evt) => {
-  evt.preventDefault()
-  popupNewAvatarButton.textContent = 'Сохранение...'
-  await fetchAvatar(newAvatarInput.value).then(userData => {
-    profilImage.src = userData.avatar
+formElementNewPlace.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  addingCard();
+});
+
+formNewAvatar.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  popupNewAvatarButton.textContent = 'Сохранение...';
+  fetchAvatar(newAvatarInput.value).then((userData) => {
+    profileImage.src = userData.avatar;
+    popupNewAvatarButton.textContent = 'Сохранить';
+    closeModal(popupeNewAvatar);
   })
-  popupNewAvatarButton.textContent = 'Сохранить'
-  closeModal(popupeNewAvatar)
-})
+  .catch((err) => console.error('Ошибка:', err));
+});
 
 enableValidation(validationConfig);
 

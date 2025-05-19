@@ -1,44 +1,36 @@
-import {
-  getUserId,
-  deleteCardFetch,
-  isLikeCard,
-  isLikeCardDelete,
-} from './api.js';
-import { popupeDeleteCard, popupButtonDelete } from './index.js';
-import { openModal, closeModal } from './modal.js';
+import { isLikeCard, isLikeCardDelete } from './api.js';
 
-export const deleteCard = (deleteButton) => {
-  const cardElement = deleteButton.closest('.card');
+import { openDeleteModal } from './index.js';
+
+export const deleteCard = (element) => {
+  const cardElement = element.closest('.card');
   if (cardElement) {
     cardElement.remove();
   }
 };
 
-export const createCard = async (
+export const createCard = (
   cards,
   deleteCard,
   handleLikeClick,
   handleImageClick,
+  userId,
 ) => {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardClone = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImage = cardClone.querySelector('.card__image');
   const cardTitle = cardClone.querySelector('.card__title');
-  const cardDelete = cardClone.querySelector('.card__delete-button');
   const likeButton = cardClone.querySelector('.card__like-button');
+  const cardDelete = cardClone.querySelector('.card__delete-button');
   const likeContainer = cardClone.querySelector('.card-likes');
+  const isLiked = cards.likes?.some((like) => like._id === userId) || false;
 
-  const idUser = await getUserId().then((data) => data._id)
-
-  const isLiked = cards.likes.some(like => like._id === idUser);
-  
   if (isLiked) {
     likeButton.classList.add('card__like-button_is-active');
   } else {
     likeButton.classList.remove('card__like-button_is-active');
   }
-
-  if (idUser !== cards.owner._id) {
+  if (userId !== cards.owner._id) {
     cardDelete.style.display = 'none';
   }
 
@@ -48,46 +40,26 @@ export const createCard = async (
   likeContainer.textContent = cards.likes.length;
 
   cardDelete.addEventListener('click', () => {
-    openModal(popupeDeleteCard);
-
-    popupButtonDelete.replaceWith(popupButtonDelete.cloneNode(true));
-    const newPopupButtonDelete = document.querySelector(
-      '[data-id="button_delete-card"]',
-    );
-
-    newPopupButtonDelete.addEventListener('click', () => {
-      deleteCard(cardClone);
-      deleteCardFetch(cards._id).then(() => {
-      console.log(`Карточка ${cards._id} удалена с сервера`);
-    });
-      closeModal(popupeDeleteCard);
-    });
+    openDeleteModal(cardClone, cards, deleteCard);
   });
 
   cardImage.addEventListener('click', () => handleImageClick(cards));
-  likeButton.addEventListener('click', async () => {
-  const isLiked = likeButton.classList.contains('card__like-button_is-active'); 
-  
-  handleLikeClick(likeButton);
-  checkLike(isLiked, likeContainer, cards._id)
-})
+  likeButton.addEventListener('click', () => {
+    handleLikeClick(likeButton, likeContainer, cards._id);
+  });
 
   return cardClone;
 };
 
-export const handleLikeClick = (likeButton) => {
-  likeButton.classList.toggle('card__like-button_is-active');
-};
+export function handleLikeClick(likeButton, likeContainer, cardId) {
+  const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-const checkLike = async (like, likeCont, cardId) => {
-  const updatedCard = await (like ? isLikeCardDelete(cardId) : isLikeCard(cardId)); 
-  likeCont.textContent = updatedCard.likes.length
+  const likeAction = isLiked ? isLikeCardDelete(cardId) : isLikeCard(cardId);
+
+  likeAction
+    .then((likeCard) => {
+      likeButton.classList.toggle('card__like-button_is-active');
+      likeContainer.textContent = likeCard.likes.length;
+    })
+    .catch((error) => console.error('Ошибка лайка:', error));
 }
-
-// const wdff = (likeBtn, id) => {
-//   if (id) {
-//     handleLikeClick(likeBtn)
-//   } else {
-//     likeButton.classList.remove('card__like-button_is-active')
-//   }
-// }
