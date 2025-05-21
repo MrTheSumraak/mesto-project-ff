@@ -1,13 +1,7 @@
-import { isLikeCard, isLikeCardDelete } from './api.js';
+import { isLikeCard, isLikeCardDelete, deleteCardFetch } from './api.js';
 
-import { openDeleteModal } from './index.js';
-
-export const deleteCard = (element) => {
-  const cardElement = element.closest('.card');
-  if (cardElement) {
-    cardElement.remove();
-  }
-};
+import { newPopupButtonDelete, placesList, openDeleteModal } from './index.js';
+import { openModal, closeModal } from './modal.js';
 
 export const createCard = (
   cards,
@@ -40,7 +34,11 @@ export const createCard = (
   likeContainer.textContent = cards.likes.length;
 
   cardDelete.addEventListener('click', () => {
-    openDeleteModal(cardClone, cards, deleteCard);
+    // console.log(cards)
+    openDeleteModal();
+    newPopupButtonDelete.addEventListener('click', () => {
+      deleteCard(cards);
+    });
   });
 
   cardImage.addEventListener('click', () => handleImageClick(cards));
