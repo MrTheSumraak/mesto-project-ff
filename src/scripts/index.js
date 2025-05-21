@@ -8,7 +8,7 @@
 
 // @todo: Вывести карточки на страницу
 
-// import '../pages/index.css';
+import '../pages/index.css';
 
 import { createCard, handleLikeClick } from './card.js';
 import { openModal, closeModal } from './modal.js';
