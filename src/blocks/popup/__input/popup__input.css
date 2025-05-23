@@ -14,17 +14,17 @@
   display: none;
 }
 
-.form__input-error-active {
+.popup__error_visible {
   display: block;
   color: red;
   font-size: 12px;
 }
 
-.form__input-border-error {
+.popup__input_type_error {
   border-bottom: 1px solid red;
 }
 
-.save-button-error {
+.popup__button_disabled {
   background: rgba(255, 255, 255, 1) !important;
   color: rgba(0, 0, 0, 0.15) !important;
   border: 2px solid rgba(0, 0, 0, 0.15) !important;

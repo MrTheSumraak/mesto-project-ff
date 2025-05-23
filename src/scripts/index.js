@@ -8,7 +8,7 @@
 
 // @todo: Вывести карточки на страницу
 
-import '../pages/index.css';
+// import '../pages/index.css';
 
 import { createCard, handleLikeClick } from './card.js';
 import { openModal, closeModal } from './modal.js';
@@ -23,6 +23,8 @@ import {
 import { enableValidation, clearValidation } from './validation.js';
 
 export const placesList = document.querySelector('.places__list');
+const cardCurrrentElement = document.querySelector('[data-id="card-current"]');
+const cardDescription = document.querySelector('.card__description')
 
 const popupList = document.querySelectorAll('.popup');
 export const popupEdit = document.querySelector('[data-id="popup-edit"]');
@@ -86,6 +88,9 @@ export const profileImage = profilImageContainer.querySelector(
 );
 const avatar = document.querySelector('.profile__image');
 
+let cardCurrent = null
+let cardCurrentElement = null
+
 export const validationConfig = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -108,17 +113,17 @@ Promise.all([getUser(), getCards()])
     profileUserId = userData._id;
     nameInput.textContent = userData.name;
     jobInput.textContent = userData.about;
-    console.log(
-      'Ид профиля: ' + profileUserId + 'Имя профиля:' + userData.name,
-    );
-    console.log('Данные пользователя:', userData);
-    console.log('Карточки:', cards);
+    // console.log(
+    //   'Ид профиля: ' + profileUserId + 'Имя профиля:' + userData.name,
+    // );
+    // console.log('Данные пользователя:', userData);
+    // console.log('Карточки:', cards);
     avatar.style.backgroundImage = `url(${userData.avatar})`;
     cards.forEach((card) => {
       placesList.append(
         createCard(
           card,
-          deleteCard,
+          openDeleteModal,
           handleLikeClick,
           handleImageClick,
           profileUserId,
@@ -126,36 +131,22 @@ Promise.all([getUser(), getCards()])
       );
     });
     renderProfil(userData);
-    renderInitialCards(cards, profileUserId);
   })
   .catch((err) => console.error('Ошибка:', err));
 
-let cardCurrent = null;
-
-export const openDeleteModal = () => {
+export const openDeleteModal = (cardData, cardElement) => {
+  cardCurrent = cardData
+  cardCurrentElement = cardElement;
   openModal(popupeDeleteCard);
 };
 
-// очень долго мучался с вашим вариантом удаления карточки, 
-// так до конца его и не понял, не понимаю зачем так усложнять, 
-// если мой вариант прекрасно справлялся с задачей...
-
-// надеюсь я мыслил в правильном направлении
 export const deleteCard = (card) => {
-  cardCurrent = card;
-  console.log(card);
-
   newPopupButtonDelete.textContent = 'Удаление...';
 
-  deleteCardFetch(cardCurrent._id)
+  deleteCardFetch(card._id)
     .then(() => {
-      console.log(`Карточка ${cardCurrent._id} удалена с сервера`);
-      const cardElement = placesList.querySelector('.card');
-      if (cardElement) {
-        cardElement.remove();
-      } else {
-        console.error('Ошибка: не найден элемент для удаления!');
-      }
+      console.log(`Карточка ${card._id} удалена с сервера`);
+      cardCurrentElement.remove()
       closeModal(popupeDeleteCard);
       cardCurrent = null;
     })
@@ -164,20 +155,6 @@ export const deleteCard = (card) => {
     })
     .finally(() => (newPopupButtonDelete.textContent = 'Да'));
 };
-
-// newPopupButtonDelete.addEventListener('click', () => {
-//   newPopupButtonDelete.textContent = 'Удаление...';
-//   deleteCardFetch(cards._id)
-//     .then(() => {
-//       console.log(`Карточка ${cards._id} удалена с сервера`);
-//       deleteCard(cardClone);
-//       closeModal(popupeDeleteCard); // вроде бы реализовал правильно, насколько понял замечание
-//     })
-//     .catch((err) => console.error('Ошибка:', err))
-//     .finally(() => {
-//       newPopupButtonDelete.textContent = 'Да';
-//     });
-// });
 
 export const handleImageClick = (card) => {
   popupImageElement.src = card.link;
@@ -214,7 +191,7 @@ export function renderInitialCards(cards, userId) {
   for (const card of cards) {
     const cardElement = createCard(
       card,
-      deleteCard,
+      openDeleteModal,
       handleLikeClick,
       handleImageClick,
       userId,
@@ -229,18 +206,18 @@ const addingCard = () => {
     .then((newCard) => {
       const newCardElement = createCard(
         newCard,
-        deleteCard,
+        openDeleteModal,
         handleLikeClick,
         handleImageClick,
         profileUserId,
       );
-      console.log(saveButtonNewCard);
+      // console.log(saveButtonNewCard);
 
       placesList.prepend(newCardElement);
       closeModal(popupNewCard);
       cardNameInput.value = '';
       imgUrlInput.value = '';
-      console.log('Новая карточка:', newCard);
+      // console.log('Новая карточка:', newCard);
       saveButtonNewCard.textContent = 'Создать';
     })
     .catch((err) => console.error('Ошибка:', err));
@@ -263,6 +240,11 @@ profilImageContainer.addEventListener('click', () => {
   openModal(popupeNewAvatar);
 });
 
+newPopupButtonDelete.addEventListener('click', () => {
+  // console.log();
+  deleteCard(cardCurrent);
+});
+
 formElementEdit.addEventListener('submit', (evt) => {
   evt.preventDefault();
   popupesaveButtonEditprofile.textContent = 'Сохранение...';
@@ -271,7 +253,7 @@ formElementEdit.addEventListener('submit', (evt) => {
     .then((data) => {
       nameUser.textContent = data.name;
       descriptionName.textContent = data.about;
-      console.log('Обновлённые данные:', data);
+      // console.log('Обновлённые данные:', data);
 
       closeModal(popupEdit);
     })

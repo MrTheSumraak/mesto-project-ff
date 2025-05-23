@@ -1,11 +1,8 @@
-import { isLikeCard, isLikeCardDelete, deleteCardFetch } from './api.js';
-
-import { newPopupButtonDelete, placesList, openDeleteModal } from './index.js';
-import { openModal, closeModal } from './modal.js';
+import { isLikeCard, isLikeCardDelete } from './api.js';
 
 export const createCard = (
-  cards,
-  deleteCard,
+  card,
+  openDeleteModal,
   handleLikeClick,
   handleImageClick,
   userId,
@@ -17,33 +14,29 @@ export const createCard = (
   const likeButton = cardClone.querySelector('.card__like-button');
   const cardDelete = cardClone.querySelector('.card__delete-button');
   const likeContainer = cardClone.querySelector('.card-likes');
-  const isLiked = cards.likes?.some((like) => like._id === userId) || false;
+  const isLiked = card.likes?.some((like) => like._id === userId) || false;
 
   if (isLiked) {
     likeButton.classList.add('card__like-button_is-active');
   } else {
     likeButton.classList.remove('card__like-button_is-active');
   }
-  if (userId !== cards.owner._id) {
+  if (userId !== card.owner._id) {
     cardDelete.style.display = 'none';
   }
 
-  cardImage.src = cards.link;
-  cardImage.alt = cards.name;
-  cardTitle.textContent = cards.name;
-  likeContainer.textContent = cards.likes.length;
+  cardImage.src = card.link;
+  cardImage.alt = card.name;
+  cardTitle.textContent = card.name;
+  likeContainer.textContent = card.likes.length;
 
-  cardDelete.addEventListener('click', () => {
-    // console.log(cards)
-    openDeleteModal();
-    newPopupButtonDelete.addEventListener('click', () => {
-      deleteCard(cards);
-    });
+  cardDelete.addEventListener('click', (ev) => {
+    openDeleteModal(card, ev.target.closest('.card'));  // надеюсь теперь так, или я опять не понял...
   });
 
-  cardImage.addEventListener('click', () => handleImageClick(cards));
+  cardImage.addEventListener('click', () => handleImageClick(card));
   likeButton.addEventListener('click', () => {
-    handleLikeClick(likeButton, likeContainer, cards._id);
+    handleLikeClick(likeButton, likeContainer, card._id);
   });
 
   return cardClone;
