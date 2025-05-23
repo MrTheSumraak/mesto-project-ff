@@ -8,7 +8,7 @@
 
 // @todo: Вывести карточки на страницу
 
-// import '../pages/index.css';
+import '../pages/index.css';
 
 import { createCard, handleLikeClick } from './card.js';
 import { openModal, closeModal } from './modal.js';
@@ -23,8 +23,6 @@ import {
 import { enableValidation, clearValidation } from './validation.js';
 
 export const placesList = document.querySelector('.places__list');
-const cardCurrrentElement = document.querySelector('[data-id="card-current"]');
-const cardDescription = document.querySelector('.card__description')
 
 const popupList = document.querySelectorAll('.popup');
 export const popupEdit = document.querySelector('[data-id="popup-edit"]');
@@ -113,11 +111,6 @@ Promise.all([getUser(), getCards()])
     profileUserId = userData._id;
     nameInput.textContent = userData.name;
     jobInput.textContent = userData.about;
-    // console.log(
-    //   'Ид профиля: ' + profileUserId + 'Имя профиля:' + userData.name,
-    // );
-    // console.log('Данные пользователя:', userData);
-    // console.log('Карточки:', cards);
     avatar.style.backgroundImage = `url(${userData.avatar})`;
     cards.forEach((card) => {
       placesList.append(
@@ -211,13 +204,11 @@ const addingCard = () => {
         handleImageClick,
         profileUserId,
       );
-      // console.log(saveButtonNewCard);
 
       placesList.prepend(newCardElement);
       closeModal(popupNewCard);
       cardNameInput.value = '';
       imgUrlInput.value = '';
-      // console.log('Новая карточка:', newCard);
       saveButtonNewCard.textContent = 'Создать';
     })
     .catch((err) => console.error('Ошибка:', err));
@@ -241,7 +232,6 @@ profilImageContainer.addEventListener('click', () => {
 });
 
 newPopupButtonDelete.addEventListener('click', () => {
-  // console.log();
   deleteCard(cardCurrent);
 });
 
@@ -253,7 +243,6 @@ formElementEdit.addEventListener('submit', (evt) => {
     .then((data) => {
       nameUser.textContent = data.name;
       descriptionName.textContent = data.about;
-      // console.log('Обновлённые данные:', data);
 
       closeModal(popupEdit);
     })
@@ -284,4 +273,4 @@ formNewAvatar.addEventListener('submit', (evt) => {
 
 enableValidation(validationConfig);
 
-// это была очень потная работа... успеваю день в день
+// это была очень потная работа... успеваю день в день.
