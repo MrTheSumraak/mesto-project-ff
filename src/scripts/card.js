@@ -30,8 +30,8 @@ export const createCard = (
   cardTitle.textContent = card.name;
   likeContainer.textContent = card.likes.length;
 
-  cardDelete.addEventListener('click', (ev) => {
-    openDeleteModal(card, ev.target.closest('.card'));  // надеюсь теперь так, или я опять не понял...
+  cardDelete.addEventListener('click', () => {
+    openDeleteModal(card, cardClone);  // я даже что то и не подумал о CardClone
   });
 
   cardImage.addEventListener('click', () => handleImageClick(card));

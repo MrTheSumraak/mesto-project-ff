@@ -86,8 +86,9 @@ export const profileImage = profilImageContainer.querySelector(
 );
 const avatar = document.querySelector('.profile__image');
 
-let cardCurrent = null
+let cardCurrentId = null
 let cardCurrentElement = null
+let profileUserId = null
 
 export const validationConfig = {
   formSelector: '.popup__form',
@@ -104,7 +105,6 @@ export const renderProfil = (data) => {
   avatar.src = data.avatar;
 };
 
-let profileUserId;
 
 Promise.all([getUser(), getCards()])
   .then(([userData, cards]) => {
@@ -128,20 +128,21 @@ Promise.all([getUser(), getCards()])
   .catch((err) => console.error('Ошибка:', err));
 
 export const openDeleteModal = (cardData, cardElement) => {
-  cardCurrent = cardData
+  cardCurrentId = cardData._id
+  console.log(cardCurrentId)
   cardCurrentElement = cardElement;
   openModal(popupeDeleteCard);
 };
 
-export const deleteCard = (card) => {
+export const deleteCard = () => {
   newPopupButtonDelete.textContent = 'Удаление...';
 
-  deleteCardFetch(card._id)
+  deleteCardFetch(cardCurrentId)
     .then(() => {
-      console.log(`Карточка ${card._id} удалена с сервера`);
+      console.log(`Карточка ${cardCurrentId} удалена с сервера`);
       cardCurrentElement.remove()
       closeModal(popupeDeleteCard);
-      cardCurrent = null;
+      cardCurrentId = null;
     })
     .catch((err) => {
       console.error('Ошибка удаления:', err);
@@ -206,12 +207,12 @@ const addingCard = () => {
       );
 
       placesList.prepend(newCardElement);
-      closeModal(popupNewCard);
       cardNameInput.value = '';
       imgUrlInput.value = '';
-      saveButtonNewCard.textContent = 'Создать';
+      closeModal(popupNewCard);
     })
-    .catch((err) => console.error('Ошибка:', err));
+    .catch((err) => console.error('Ошибка:', err))
+    .finally(() => saveButtonNewCard.textContent = 'Создать')
 };
 
 popupButtonEdit.addEventListener('click', () => {
@@ -232,7 +233,7 @@ profilImageContainer.addEventListener('click', () => {
 });
 
 newPopupButtonDelete.addEventListener('click', () => {
-  deleteCard(cardCurrent);
+  deleteCard();
 });
 
 formElementEdit.addEventListener('submit', (evt) => {
@@ -263,6 +264,7 @@ formNewAvatar.addEventListener('submit', (evt) => {
   fetchAvatar(newAvatarInput.value)
     .then((userData) => {
       profileImage.src = userData.avatar;
+      newAvatarInput.value = '';
       closeModal(popupeNewAvatar);
     })
     .catch((err) => console.error('Ошибка:', err))
@@ -270,6 +272,7 @@ formNewAvatar.addEventListener('submit', (evt) => {
       popupNewAvatarButton.textContent = 'Сохранить';
     });
 });
+
 
 enableValidation(validationConfig);
 
