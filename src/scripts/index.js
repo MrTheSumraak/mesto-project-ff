@@ -276,4 +276,4 @@ formNewAvatar.addEventListener('submit', (evt) => {
 
 enableValidation(validationConfig);
 
-// это была очень потная работа... успеваю день в день.
+// это была очень потная работа... успеваю день в день..
